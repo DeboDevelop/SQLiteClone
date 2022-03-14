@@ -3,12 +3,25 @@
 #include <string.h>
 #include <stdbool.h>
 
+// All structs
 typedef struct {
     char* buffer;
     size_t buffer_length;
     ssize_t input_length;
 } InputBuffer;
 
+// All Enums
+typedef enum {
+    META_COMMAND_SUCCESS,
+    META_COMMAND_UNRECOGNIZED_COMMAND
+} MetaCommandResult;
+
+// All Print functions
+void print_prompt() {
+    printf("SQLite > ");
+}
+
+// All Input Buffer functions
 InputBuffer* new_input_buffer() {
     InputBuffer* input_buffer = malloc(sizeof(InputBuffer));
     input_buffer->buffer = NULL;
@@ -36,8 +49,15 @@ void read_input(InputBuffer* input_buffer) {
     input_buffer->buffer[bytes_read - 1] = 0;
 }
 
-void print_prompt() {
-    printf("SQLite > ");
+// ALl Meta Command Result functions
+MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
+    if (strcmp(input_buffer->buffer, ".exit") == 0) {
+        close_input_buffer(input_buffer);
+        printf("Exiting Gracefully.\n");
+        exit(EXIT_SUCCESS);
+    } else {
+        return META_COMMAND_UNRECOGNIZED_COMMAND;
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -46,12 +66,14 @@ int main(int argc, char* argv[]) {
         print_prompt();
         read_input(input_buffer);
 
-        if(strcmp(input_buffer->buffer, ".exit") == 0) {
-            close_input_buffer(input_buffer);
-            printf("Exiting Gracefully.\n");
-            exit(EXIT_SUCCESS);
-        } else {
-            printf("Unrecognized command '%s'.\n", input_buffer->buffer);
+        if(input_buffer->buffer[0] == '.') {
+            switch(do_meta_command(input_buffer)) {
+                case (META_COMMAND_SUCCESS):
+                    continue;
+                case (META_COMMAND_UNRECOGNIZED_COMMAND):
+                    printf("Unrecognized command '%s'\n", input_buffer->buffer);
+                    continue;
+            }
         }
     }
     return 0;
