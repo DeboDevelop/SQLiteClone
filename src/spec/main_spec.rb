@@ -69,4 +69,17 @@ describe 'database' do
             "SQLite > Exiting Gracefully."
         ])
     end
+    it 'prints an error message if id is negative' do
+        script = [
+            "insert -1 cstack foo@bar.com",
+            "select",
+            ".exit",
+        ]
+        result = run_script(script)
+        expect(result).to match_array([
+            "SQLite > ID must be positive.",
+            "SQLite > Executed.",
+            "SQLite > Exiting Gracefully."
+        ])
+    end
 end
