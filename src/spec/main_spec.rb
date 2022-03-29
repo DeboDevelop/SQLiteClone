@@ -136,9 +136,25 @@ describe 'database' do
             "SQLite > Executed.",
             "SQLite > Tree:",
             "leaf (size 3)",
-            "  - 0 : 3",
-            "  - 1 : 1",
-            "  - 2 : 2",
+            "  - 0 : 1",
+            "  - 1 : 2",
+            "  - 2 : 3",
+            "SQLite > Exiting Gracefully."
+        ])
+    end
+    it 'prints an error message if there is a duplicate id' do
+        script = [
+            "insert 1 user1 person1@example.com",
+            "insert 1 user1 person1@example.com",
+            "select",
+            ".exit",
+        ]
+        result = run_script(script)
+        expect(result).to match_array([
+            "SQLite > Executed.",
+            "SQLite > Error: Duplicate key.",
+            "SQLite > (1, user1, person1@example.com)",
+            "Executed.",
             "SQLite > Exiting Gracefully."
         ])
     end
