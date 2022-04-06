@@ -30,16 +30,6 @@ describe 'database' do
             "SQLite > Exiting Gracefully."
         ]) 
     end
-
-    it 'prints error message when table is full' do
-        script = (1..1501).map do |i|
-            "insert #{i} user#{i} person#{i}@example.com"
-        end
-        script << ".exit"
-        result = run_script(script)
-        
-        expect(result[-2]).to eq("SQLite > Error: Table full.")
-    end
     it 'allows inserting strings that are the maximum length' do
         long_username = "a"*32
         long_email = "a"*255
@@ -135,11 +125,43 @@ describe 'database' do
             "SQLite > Executed.",
             "SQLite > Executed.",
             "SQLite > Tree:",
-            "leaf (size 3)",
-            "  - 0 : 1",
-            "  - 1 : 2",
-            "  - 2 : 3",
+            " - leaf (size 3)",
+            "   - 1",
+            "   - 2",
+            "   - 3",
             "SQLite > Exiting Gracefully."
+        ])
+    end
+    it 'allows printing out the structure of a 3-leaf-node btree' do
+        script = (1..14).map do |i|
+            "insert #{i} user#{i} person#{i}@example.com"
+        end
+        script << ".btree"
+        script << "insert 15 user15 person15@example.com"
+        script << ".exit"
+        result = run_script(script)
+
+        expect(result[14...(result.length)]).to match_array([
+            "SQLite > Tree:",
+            "- internal (size 1)",
+            "   - leaf (size 7)",
+            "     - 1",
+            "     - 2",
+            "     - 3",
+            "     - 4",
+            "     - 5",
+            "     - 6",
+            "     - 7",
+            "  - key 7",
+            "   - leaf (size 7)",
+            "     - 8",
+            "     - 9",
+            "     - 10",
+            "     - 11",
+            "     - 12",
+            "     - 13",
+            "     - 14",
+            "SQLite > Need to implement searching an internal node",
         ])
     end
     it 'prints an error message if there is a duplicate id' do
